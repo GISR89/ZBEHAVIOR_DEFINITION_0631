@@ -2,7 +2,7 @@ managed implementation in class zbp_r_customer_travel_0631 unique;
 strict ( 2 );
 with draft;
 
-define behavior for Z_R_CUSTOMER_TRAVEL_0631 //alias <alias_name>
+define behavior for Z_R_CUSTOMER_TRAVEL_0631 alias CustomerTravel
 persistent table zcustomers_0631
 draft table zcustomers_d_631
 lock master
@@ -15,10 +15,12 @@ authorization master ( global, instance )
   update;
   delete;
   field ( numbering : managed, readonly ) CustomerUuid;
-  field ( readonly ) Description;
   field ( mandatory ) CustomerId;
+  field ( readonly ) Description, FlightDate, CurrencyCode, OverallStatus;
+  field ( features : instance ) Price;
 
-  action ( features : instance, authorization : update ) acceptClients result [1] $self;
+  action ( features : instance, authorization : update ) acceptClients
+    parameter Z_AE_CUSTOMER_TRAVEL_0631 result [1] $self;
   action ( features : instance, authorization : update ) rejectClients result [1] $self;
 
   validation validateCustomer on save { create; field CustomerId; }
@@ -27,8 +29,9 @@ authorization master ( global, instance )
 
   determine action validateCustomerFormat { validation validateCustomer; }
 
-  side effects { field CustomerId affects field Description;
-  determine action validateCustomerFormat executed on field CustomerId affects messages; }
+  side effects
+  { field CustomerId affects field Description;
+    determine action validateCustomerFormat executed on field CustomerId affects messages; }
 
   draft action Resume;
   draft action Edit;
@@ -37,16 +40,20 @@ authorization master ( global, instance )
 
   draft determine action Prepare { validation validateCustomer; }
 
- mapping for zcustomers_0631 {
-
- CustomerUuid        =  customer_uuid      ;
- CustomerId          =  customer_id      ;
- Description         =  description             ;
- LocalCreatedBy      =  local_created_by     ;
- LocalCreatedAt      =  local_created_at     ;
- LocalLastChangedBy  =  local_last_changed_by;
- LocalLastChangedAt  =  local_last_changed_at;
- LastChangedAt       =  last_changed_at      ;
-  }
+  mapping for zcustomers_0631
+    {
+      CustomerUuid       = customer_uuid;
+      CustomerId         = customer_id;
+      FlightDate         = flight_date;
+      Description        = description;
+      Price              = price;
+      CurrencyCode       = currency_code;
+      OverallStatus      = overall_status;
+      LocalCreatedBy     = local_created_by;
+      LocalCreatedAt     = local_created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
 
 }
