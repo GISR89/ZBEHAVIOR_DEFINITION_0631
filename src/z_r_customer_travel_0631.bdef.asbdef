@@ -16,16 +16,19 @@ authorization master ( global, instance )
   delete;
   field ( numbering : managed, readonly ) CustomerUuid;
   field ( mandatory ) CustomerId;
-  field ( readonly ) Description, FlightDate, CurrencyCode, OverallStatus;
+  field ( readonly ) Description, FlightDate, OverallStatus;
   field ( features : instance ) Price;
 
   action ( features : instance, authorization : update ) acceptClients
     parameter Z_AE_CUSTOMER_TRAVEL_0631 result [1] $self;
   action ( features : instance, authorization : update ) rejectClients result [1] $self;
 
+  internal action updateFlightDate;
+
   validation validateCustomer on save { create; field CustomerId; }
 
   determination setDescription on save { create; field Description; }
+  determination setStatus on modify { create; field OverallStatus, FlightDate; }
 
   determine action validateCustomerFormat { validation validateCustomer; }
 
